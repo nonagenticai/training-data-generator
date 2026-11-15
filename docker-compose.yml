@@ -1,0 +1,51 @@
+services:
+  training-data-generator:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: training-data-generator
+    environment:
+      TRAINING_DATA_GEN_ENVIRONMENT: development
+      TRAINING_DATA_GEN_LOG_FORMAT: json
+      TRAINING_DATA_GEN_DATABASE_URL: postgresql+psycopg://postgres:postgres@db:5432/training_data_generator
+      TRAINING_DATA_GEN_DATA_COLLECTOR_URL: http://host.docker.internal:8151
+      TRAINING_DATA_GEN_MODEL_REGISTRY_URL: http://host.docker.internal:8155
+      TRAINING_DATA_GEN_MINIO_ENDPOINT: minio:9000
+      TRAINING_DATA_GEN_MINIO_ACCESS_KEY: minioadmin
+      TRAINING_DATA_GEN_MINIO_SECRET_KEY: minioadmin
+    ports:
+      - "8152:8152"
+    depends_on:
+      - db
+      - minio
+    restart: unless-stopped
+
+  db:
+    image: postgres:18-alpine
+    container_name: training-data-generator-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: training_data_generator
+    ports:
+      - "5455:5432"
+    volumes:
+      - training_data_generator_db_data:/var/lib/postgresql/data
+
+  minio:
+    image: minio/minio:latest
+    container_name: training-data-generator-minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - training_data_generator_minio_data:/data
+
+volumes:
+  training_data_generator_db_data:
+  training_data_generator_minio_data:
