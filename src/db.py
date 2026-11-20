@@ -4,7 +4,7 @@ Provides init_db / dispose_db lifecycle functions and a get_session
 async context manager for obtaining async sessions.
 """
 
-from collections.abc import AsyncIterator
+from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 
 from sqlalchemy import text
@@ -91,7 +91,7 @@ async def check_db_connectivity() -> bool:
 
 
 @asynccontextmanager
-async def get_session() -> AsyncIterator[AsyncSession]:
+async def get_session() -> AsyncGenerator[AsyncSession]:
     """Yield an async SQLAlchemy session, committing on success or rolling back on error."""
     if _session_factory is None:
         raise RuntimeError("Database not initialised. Call init_db() first.")

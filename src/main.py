@@ -4,7 +4,7 @@ FastAPI application with async lifespan for managing service dependencies
 (HTTP clients, MinIO client). Follows karma_service patterns.
 """
 
-from collections.abc import AsyncIterator
+from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 
 import httpx
@@ -33,7 +33,7 @@ _settings = get_settings()
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI) -> AsyncIterator[None]:
+async def lifespan(app: FastAPI) -> AsyncGenerator[None]:
     """Manage async service dependencies lifecycle.
 
     Creates and tears down HTTP clients and service objects.
